@@ -1,5 +1,8 @@
 name: MLflow Training Pipeline (Artifacts to Repo)
 
+permissions:
+  contents: write
+  
 on:
   push:
     branches: [ main ]
