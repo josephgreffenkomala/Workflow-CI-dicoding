@@ -32,7 +32,7 @@ jobs:
     - name: Train model
       run: |
         cd MLProject
-        mlflow run . --no-conda \
+        mlflow run . --env-manager=local \
           -P n_estimators=${{ github.event.inputs.n_estimators || '100' }} \
           -P max_depth=${{ github.event.inputs.max_depth || '10' }}
         
@@ -58,4 +58,4 @@ jobs:
         git push
       continue-on-error: true
 
-      
+
