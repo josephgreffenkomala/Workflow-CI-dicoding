@@ -1,4 +1,4 @@
-name: MLflow Training Pipeline
+name: MLflow Training Pipeline (Artifacts to Repo)
 
 on:
   push:
@@ -6,47 +6,48 @@ on:
     paths:
       - "MLProject/**"
       - ".github/workflows/mlflow-train.yml"
-  pull_request:
-    branches: [ main ]
   workflow_dispatch:
 
 jobs:
-  train-mlflow-model:
+  train-and-push-artifacts:
     runs-on: ubuntu-latest
 
     steps:
-    - name: Checkout repository
+    - name: Checkout main branch
       uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
 
     - name: Set up Python
       uses: actions/setup-python@v5
       with:
         python-version: "3.10"
 
-    - name: Install system dependencies
-      run: |
-        sudo apt-get update
-        sudo apt-get install -y build-essential
-
-    - name: Install MLflow
+    - name: Install dependencies
       run: |
         python -m pip install --upgrade pip
-        pip install mlflow scikit-learn pandas numpy matplotlib seaborn dagshub
+        pip install mlflow scikit-learn pandas numpy matplotlib seaborn
 
     - name: Run MLflow Project
       working-directory: MLProject
       run: |
-        mlflow run . \
-          -P n_estimators=100 \
-          -P max_depth=10 \
-          -P min_samples_split=2 \
-          -P min_samples_leaf=1 \
-          -P random_state=42
+        mlflow run .
 
-    - name: Upload MLflow artifacts
-      uses: actions/upload-artifact@v4
-      with:
-        name: mlflow-artifacts
-        path: |
-          MLProject/mlruns
-          MLProject/run_id.txt
+    # -----------------------------
+    # PUSH ARTIFACT KE BRANCH KHUSUS
+    # -----------------------------
+    - name: Push MLflow artifacts to repo
+      run: |
+        git config user.name "josephgreffenkomala"
+        git config user.email "josephgreffenkomala@mail.ugm.ac.id"
+
+        # Buat / checkout branch artifact
+        git checkout -B mlflow-artifacts
+
+        # Copy hasil training
+        mkdir -p MLProject/mlruns
+        git add MLProject/mlruns MLProject/run_id.txt
+
+        git commit -m "MLflow artifacts from CI run $GITHUB_RUN_ID" || echo "No changes to commit"
+
+        git push origin mlflow-artifacts --force
