@@ -38,24 +38,15 @@ jobs:
       with:
         python-version: '3.10'
         
-    - name: Install Conda
-      uses: conda-incubator/setup-miniconda@v3
-      with:
-        auto-update-conda: true
-        python-version: '3.10'
-        activate-environment: base
-        miniconda-version: "latest"
-        
-    - name: Install MLflow
-      shell: bash -el {0}
+    - name: Install dependencies
       run: |
-        pip install mlflow
+        python -m pip install --upgrade pip
+        pip install mlflow pandas numpy scikit-learn matplotlib
         
     - name: Run MLflow Project
-      shell: bash -el {0}
       run: |
         cd MLProject
-        mlflow run . \
+        mlflow run . --no-conda \
           -P n_estimators=${{ github.event.inputs.n_estimators || '100' }} \
           -P max_depth=${{ github.event.inputs.max_depth || '10' }}
         
