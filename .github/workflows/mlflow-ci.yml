@@ -28,6 +28,12 @@ jobs:
         
     - name: Install dependencies
       run: pip install mlflow pandas numpy scikit-learn matplotlib seaborn
+    
+    - name: Clean mlruns directory
+      run: |
+        cd MLProject
+        rm -rf mlruns
+        mkdir -p mlruns
         
     - name: Train model
       run: |
