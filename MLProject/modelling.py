@@ -8,9 +8,14 @@ from sklearn.metrics import (accuracy_score, precision_score, recall_score,
 import mlflow
 import mlflow.sklearn
 from datetime import datetime
+import matplotlib
+matplotlib.use("Agg")
+
 import matplotlib.pyplot as plt
 import seaborn as sns
+
 import argparse
+import dagshub
 import os
 
 
@@ -176,68 +181,71 @@ def main():
     print("MLflow Project - CI/CD Model Training Pipeline")
     print("="*70)
     
-    # Set MLflow tracking URI to use relative path (platform-independent)
-    mlflow.set_tracking_uri("file:./mlruns")
+    
+    # For DagsHub remote tracking (uncomment when needed):
+    # dagshub.init(repo_owner='josephgreffenkomala', repo_name='Membangun-model_SML', mlflow=True)
+    # mlflow.set_tracking_uri("https://dagshub.com/josephgreffenkomala/Workflow-CI-dicoding.mlflow")
+    
+    
     
     # Load data
     X_train, X_test, y_train, y_test = load_preprocessed_data()
     
-    # Start MLflow run
-    with mlflow.start_run(run_name=f"rf_ci_{datetime.now().strftime('%Y%m%d_%H%M%S')}"):
+    # Start MLflow run with nested=False to ensure fresh run
         
-        # Log parameters
-        mlflow.log_param("n_estimators", args.n_estimators)
-        mlflow.log_param("max_depth", args.max_depth)
-        mlflow.log_param("min_samples_split", args.min_samples_split)
-        mlflow.log_param("min_samples_leaf", args.min_samples_leaf)
-        mlflow.log_param("random_state", args.random_state)
-        mlflow.log_param("train_samples", len(X_train))
-        mlflow.log_param("test_samples", len(X_test))
-        
-        # Train model
-        model = train_model(
-            X_train, y_train,
-            n_estimators=args.n_estimators,
-            max_depth=args.max_depth,
-            min_samples_split=args.min_samples_split,
-            min_samples_leaf=args.min_samples_leaf,
-            random_state=args.random_state
-        )
-        
-        # Evaluate model
-        metrics = evaluate_model(model, X_train, X_test, y_train, y_test)
-        
-        # Log metrics
-        mlflow.log_metric("train_accuracy", metrics['train_accuracy'])
-        mlflow.log_metric("test_accuracy", metrics['test_accuracy'])
-        mlflow.log_metric("test_precision", metrics['test_precision'])
-        mlflow.log_metric("test_recall", metrics['test_recall'])
-        mlflow.log_metric("test_f1", metrics['test_f1'])
-        
-        # Create and log visualizations
-        classes = sorted(y_test.unique())
-        plot_confusion_matrix(metrics['confusion_matrix'], classes)
-        mlflow.log_artifact('confusion_matrix.png')
+    # Log parameters
+    mlflow.log_param("n_estimators", args.n_estimators)
+    mlflow.log_param("max_depth", args.max_depth)
+    mlflow.log_param("min_samples_split", args.min_samples_split)
+    mlflow.log_param("min_samples_leaf", args.min_samples_leaf)
+    mlflow.log_param("random_state", args.random_state)
+    mlflow.log_param("train_samples", len(X_train))
+    mlflow.log_param("test_samples", len(X_test))
+    
+    # Train model
+    model = train_model(
+        X_train, y_train,
+        n_estimators=args.n_estimators,
+        max_depth=args.max_depth,
+        min_samples_split=args.min_samples_split,
+        min_samples_leaf=args.min_samples_leaf,
+        random_state=args.random_state
+    )
+    
+    # Evaluate model
+    metrics = evaluate_model(model, X_train, X_test, y_train, y_test)
+    
+    # Log metrics
+    mlflow.log_metric("train_accuracy", metrics['train_accuracy'])
+    mlflow.log_metric("test_accuracy", metrics['test_accuracy'])
+    mlflow.log_metric("test_precision", metrics['test_precision'])
+    mlflow.log_metric("test_recall", metrics['test_recall'])
+    mlflow.log_metric("test_f1", metrics['test_f1'])
+    
+    # Create and log visualizations
+    classes = sorted(y_test.unique())
+    plot_confusion_matrix(metrics['confusion_matrix'], classes)
+    mlflow.log_artifact('confusion_matrix.png')
 
-        feature_names = X_train.columns.tolist()
-        plot_feature_importance(model, feature_names)
-        mlflow.log_artifact('feature_importance.png')
-        # Log model
-        mlflow.sklearn.log_model(
-            model,
-            "model",
-            input_example=X_train.iloc[:5],
-            signature=mlflow.models.infer_signature(X_train, model.predict(X_train))
-        )
-        
-        # Get run info
-        run = mlflow.active_run()
-        print(f"\nMLflow Run ID: {run.info.run_id}")
-        print(f"Artifact URI: {run.info.artifact_uri}")
-        
-        # Save run ID to file for CI/CD
-        with open('run_id.txt', 'w') as f:
-            f.write(run.info.run_id)
+    feature_names = X_train.columns.tolist()
+    plot_feature_importance(model, feature_names)
+    mlflow.log_artifact('feature_importance.png')
+    # Log model
+    mlflow.sklearn.log_model(
+        model,
+        "model",
+        input_example=X_train.iloc[:5],
+        signature=mlflow.models.infer_signature(X_train, model.predict(X_train))
+    )
+    
+    # Get run info
+    run = mlflow.active_run()
+    print(f"\nMLflow Run ID: {run.info.run_id}")
+    print(f"Artifact URI: {run.info.artifact_uri}")
+    
+    # Save run ID to file for CI/CD
+    with open('run_id.txt', 'w') as f:
+        f.write(run.info.run_id)
         
     print("\n" + "="*70)
     print("Training completed successfully!")
