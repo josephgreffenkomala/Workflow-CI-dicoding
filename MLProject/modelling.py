@@ -19,8 +19,8 @@ import dagshub
 import os
 
 
-def load_preprocessed_data(train_path='iris_train_preprocessed.csv', 
-                           test_path='iris_test_preprocessed.csv'):
+def load_preprocessed_data(train_path='penguins_train_preprocessed.csv', 
+                           test_path='penguins_test_preprocessed.csv'):
     """
     Load preprocessed data
     
@@ -168,7 +168,7 @@ def main():
     """
     Main training pipeline for MLflow Project
     """
-    parser = argparse.ArgumentParser(description='Train Iris Classification Model')
+    parser = argparse.ArgumentParser(description='Train Penguins Classification Model')
     parser.add_argument('--n_estimators', type=int, default=100, help='Number of trees')
     parser.add_argument('--max_depth', type=int, default=10, help='Max depth of trees')
     parser.add_argument('--min_samples_split', type=int, default=2, help='Min samples to split')
@@ -256,4 +256,5 @@ if __name__ == "__main__":
     main()
 
 
-# docker run -p 5001:8080 josephgreffenkomala/iris-classification-mlflow:latest  
+# docker run -p 5001:8080 josephgreffenkomala/penguins-classification-mlflow:latest  
+# mlflow models build-docker -m runs:/<RUN_ID>/model -n my-mlflow-model
