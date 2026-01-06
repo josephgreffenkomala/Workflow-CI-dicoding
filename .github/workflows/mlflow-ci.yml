@@ -23,10 +23,14 @@ on:
 jobs:
   train-model:
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
     
     steps:
     - name: Checkout repository
-      uses: actions/checkout@v3
+      uses: actions/checkout@v4
+      with:
+        token: ${{ secrets.GITHUB_TOKEN }}
       
     - name: Set up Python
       uses: actions/setup-python@v4
@@ -54,13 +58,17 @@ jobs:
       run: |
         cd MLProject
         ls -la
+        echo "Checking if artifacts exist..."
+        test -f "run_id.txt" && echo "✓ Run ID file created" || echo "✗ Run ID file missing"
+        test -f "confusion_matrix.png" && echo "✓ Confusion matrix created" || echo "✗ Confusion matrix missing"
+        test -f "feature_importance.png" && echo "✓ Feature importance created" || echo "✗ Feature importance missing"
         if [ -f "run_id.txt" ]; then
           echo "Run ID:"
           cat run_id.txt
         fi
         
     - name: Upload MLflow artifacts
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v4
       with:
         name: mlflow-artifacts
         path: |
@@ -85,13 +93,14 @@ jobs:
         
     - name: Save artifacts to repository
       run: |
-        git config --global user.name "GitHub Actions Bot"
-        git config --global user.email "actions@github.com"
+        git config --global user.name "josephgreffenkomala"
+        git config --global user.email "josephgreffenkomala@mail.ugm.ac.id"
         mkdir -p artifacts
         cp MLProject/confusion_matrix.png artifacts/ || true
         cp MLProject/feature_importance.png artifacts/ || true
         cp MLProject/run_id.txt artifacts/ || true
         git add artifacts/
         git diff --staged --quiet || git commit -m "Update training artifacts [skip ci]"
+        git pull
         git push
       continue-on-error: true
