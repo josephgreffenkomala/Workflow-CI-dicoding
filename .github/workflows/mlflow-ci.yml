@@ -6,6 +6,7 @@ on:
       - main
     paths:
       - 'MLProject/**'
+      - '.github/workflows/mlflow-ci.yml'
   pull_request:
     branches:
       - main
