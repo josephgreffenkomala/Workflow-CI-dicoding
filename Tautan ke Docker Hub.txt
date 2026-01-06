@@ -1,1 +1,1 @@
-https://hub.docker.com/r/josephgreffenkomala/iris-classification-mlflow
+https://hub.docker.com/r/josephgreffenkomala/penguins-classification-mlflow
