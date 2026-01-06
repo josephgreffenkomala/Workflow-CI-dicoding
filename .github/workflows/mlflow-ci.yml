@@ -39,16 +39,20 @@ jobs:
         python-version: '3.10'
         
     - name: Install Conda
-      uses: conda-incubator/setup-miniconda@v2
+      uses: conda-incubator/setup-miniconda@v3
       with:
         auto-update-conda: true
         python-version: '3.10'
+        activate-environment: base
+        miniconda-version: "latest"
         
     - name: Install MLflow
+      shell: bash -el {0}
       run: |
         pip install mlflow
         
     - name: Run MLflow Project
+      shell: bash -el {0}
       run: |
         cd MLProject
         mlflow run . \
