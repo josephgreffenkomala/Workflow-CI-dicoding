@@ -1,0 +1,52 @@
+name: MLflow Training Pipeline
+
+on:
+  push:
+    branches: [ main ]
+    paths:
+      - "MLProject/**"
+      - ".github/workflows/mlflow-train.yml"
+  pull_request:
+    branches: [ main ]
+  workflow_dispatch:
+
+jobs:
+  train-mlflow-model:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+
+    - name: Set up Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: "3.10"
+
+    - name: Install system dependencies
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y build-essential
+
+    - name: Install MLflow
+      run: |
+        python -m pip install --upgrade pip
+        pip install mlflow scikit-learn pandas numpy matplotlib seaborn dagshub
+
+    - name: Run MLflow Project
+      working-directory: MLProject
+      run: |
+        mlflow run . \
+          -P n_estimators=100 \
+          -P max_depth=10 \
+          -P min_samples_split=2 \
+          -P min_samples_leaf=1 \
+          -P random_state=42
+
+    - name: Upload MLflow artifacts
+      uses: actions/upload-artifact@v4
+      with:
+        name: mlflow-artifacts
+        path: |
+          MLProject/mlruns
+          MLProject/run_id.txt
