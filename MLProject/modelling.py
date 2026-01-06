@@ -257,4 +257,4 @@ if __name__ == "__main__":
 
 
 # docker run -p 5001:8080 josephgreffenkomala/penguins-classification-mlflow:latest  
-# mlflow models build-docker -m runs:/<RUN_ID>/model -n my-mlflow-model
+# mlflow models build-docker -m runs:/5feddaebba284f9ca13a9a1852bbe295/model -n my-mlflow-model
