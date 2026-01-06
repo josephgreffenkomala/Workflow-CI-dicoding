@@ -28,10 +28,10 @@ jobs:
         python -m pip install --upgrade pip
         pip install mlflow scikit-learn pandas numpy matplotlib seaborn
 
-    - name: Run MLflow Project
+    - name: Run MLflow Project (no conda)
       working-directory: MLProject
       run: |
-        mlflow run .
+        mlflow run . --env-manager=local
 
     # -----------------------------
     # PUSH ARTIFACT KE BRANCH KHUSUS
