@@ -187,7 +187,7 @@ def main():
     # mlflow.set_tracking_uri("https://dagshub.com/josephgreffenkomala/Workflow-CI-dicoding.mlflow")
     
     
-    
+    # mlflow.set_tracking_uri("file:./mlruns")
     # Load data
     X_train, X_test, y_train, y_test = load_preprocessed_data()
     

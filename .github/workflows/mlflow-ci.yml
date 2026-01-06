@@ -30,6 +30,8 @@ jobs:
 
     - name: Run MLflow Project (no conda)
       working-directory: MLProject
+      env:
+        MLFLOW_TRACKING_URI: file:./mlruns
       run: |
         mlflow run . --env-manager=local
 
