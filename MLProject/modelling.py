@@ -176,6 +176,9 @@ def main():
     print("MLflow Project - CI/CD Model Training Pipeline")
     print("="*70)
     
+    # Set MLflow tracking URI to use relative path (platform-independent)
+    mlflow.set_tracking_uri("file:./mlruns")
+    
     # Load data
     X_train, X_test, y_train, y_test = load_preprocessed_data()
     
